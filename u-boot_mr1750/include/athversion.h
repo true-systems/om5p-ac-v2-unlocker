@@ -1,0 +1,8 @@
+#ifndef __ATHVERSION_H_
+#define __ATHVERSION_H_
+
+#define ATH_AP83_UBOOT_VERSION "0.0.12"
+#define ATH_PB45_UBOOT_VERSION "0.0.1"
+#define ATH_AP96_UBOOT_VERSION "0.0.1"
+
+#endif /* __ATHVERSION_H_ */
