@@ -35,6 +35,6 @@ ENDIANNESS = -EL
 #ENDIANNESS = -EB
 endif
 
-MIPSFLAGS += $(ENDIANNESS) -mabicalls -march=mips32r2
+MIPSFLAGS += $(ENDIANNESS) -mabicalls -march=mips32r2 -fpic
 
 PLATFORM_CPPFLAGS += $(MIPSFLAGS)
