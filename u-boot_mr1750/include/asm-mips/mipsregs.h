@@ -276,7 +276,7 @@
  * Mostly used to access the interrupt bits.
  */
 #define __BUILD_SET_CP0(name,register)                          \
-extern __inline__ unsigned int                                  \
+static __inline__ unsigned int                                  \
 set_cp0_##name(unsigned int set)				\
 {                                                               \
 	unsigned int res;                                       \
@@ -288,7 +288,7 @@ set_cp0_##name(unsigned int set)				\
 	return res;                                             \
 }								\
 								\
-extern __inline__ unsigned int                                  \
+static __inline__ unsigned int                                  \
 clear_cp0_##name(unsigned int clear)				\
 {                                                               \
 	unsigned int res;                                       \
@@ -300,7 +300,7 @@ clear_cp0_##name(unsigned int clear)				\
 	return res;                                             \
 }								\
 								\
-extern __inline__ unsigned int                                  \
+static __inline__ unsigned int                                  \
 change_cp0_##name(unsigned int change, unsigned int new)	\
 {                                                               \
 	unsigned int res;                                       \
