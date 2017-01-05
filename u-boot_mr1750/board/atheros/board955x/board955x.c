@@ -142,6 +142,23 @@ ath_mem_config(void)
 #endif /* !defined(CONFIG_ATH_EMULATION) */
 #endif /* !defined(CONFIG_SKIP_LOWLEVEL_INIT) */
 
+#if defined(CONFIG_OM5PACV2_UNLOCKER)
+	/* Setup GPIO12 for watchdog */
+	ath_reg_rmw_clear(0x18040008, 0x1000);
+	ath_reg_rmw_clear(0x18040038, 0x00ff);
+	ath_reg_rmw_clear(0x18040000, 0x1000);
+
+	/*
+	 * Setup GPIOs for LEDs:
+	 *   RED: GPIO23 (active low)
+	 * GREEN: GPIO13 (active low)
+	 */
+	ath_reg_rmw_set(0x18040008, 0x802000);
+	ath_reg_rmw_clear(0x18040038, 0x0000ff00);
+	ath_reg_rmw_clear(0x18040040, 0xff000000);
+	ath_reg_rmw_clear(0x18040000, 0x802000);
+#endif /* defined(CONFIG_OM5PACV2_UNLOCKER) */
+
 	return ath_ddr_find_size();
 }
 
@@ -159,12 +176,16 @@ int	checkboard(args)
 
 void hw_watchdog_reset (void)
 {
-    if ((ath_reg_rd (GPIO_OUT_ADDRESS) & 0x10000) == 0) {
-        ath_reg_rmw_set (GPIO_OUT_ADDRESS, 0x10000);
-    }
-    else {
-        ath_reg_rmw_clear (GPIO_OUT_ADDRESS, 0x10000);
-    }
+#if defined(CONFIG_OM5PACV2_UNLOCKER)
+	#define _HW_WDT_MASK	0x1000
+#else
+	#define _HW_WDT_MASK	0x10000
+#endif /* defined(CONFIG_OM5PACV2_UNLOCKER) */
+	if ((ath_reg_rd (GPIO_OUT_ADDRESS) & _HW_WDT_MASK) == 0) {
+		ath_reg_rmw_set (GPIO_OUT_ADDRESS, _HW_WDT_MASK);
+	} else {
+		ath_reg_rmw_clear (GPIO_OUT_ADDRESS, _HW_WDT_MASK);
+	}
 }
 
 #ifdef CONFIG_GPIO_CUSTOM

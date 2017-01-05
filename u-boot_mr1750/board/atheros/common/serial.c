@@ -14,6 +14,15 @@ int serial_init(void)
 #else
 	val = ath_reg_rd(GPIO_OE_ADDRESS) & (~0xcffc10u);
 #endif
+
+#if defined(CONFIG_OM5PACV2_UNLOCKER)
+	/*
+	 * Keep GPIO17 setup as input for OM5PACV2,
+	 * otherwise it immediately resets
+	 */
+	val = val | 0x20000;
+#endif /* defined(CONFIG_OM5PACV2_UNLOCKER) */
+
 	ath_reg_wr(GPIO_OE_ADDRESS, val);
 
 	ath_reg_rmw_set(GPIO_OUT_FUNCTION2_ADDRESS,

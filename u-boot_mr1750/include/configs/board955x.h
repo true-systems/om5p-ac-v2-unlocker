@@ -8,7 +8,11 @@
 #undef CFG_HZ
 
 #include <atheros.h>
-#define CONFIG_GPIO_CUSTOM      1
+
+#if !defined(CONFIG_OM5PACV2_UNLOCKER)
+	#define CONFIG_GPIO_CUSTOM      1
+#endif
+
 #define CONFIG_HW_WATCHDOG      1
 #ifndef FLASH_SIZE
 #define FLASH_SIZE 8

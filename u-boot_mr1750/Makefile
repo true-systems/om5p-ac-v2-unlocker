@@ -3006,6 +3006,9 @@ endif
 ifeq ($(CONFIG_SKIP_LOWLEVEL_INIT), 1)
 	@echo '#define CONFIG_SKIP_LOWLEVEL_INIT'	>>include/config.h
 endif
+ifeq ($(CONFIG_OM5PACV2_UNLOCKER), 1)
+	@echo '#define CONFIG_OM5PACV2_UNLOCKER'	>>include/config.h
+endif
 
 ifeq ($(ATH_SGMII_FORCED),1)
 	@echo '#define ATH_SGMII_FORCED		1'	>>include/config.h
