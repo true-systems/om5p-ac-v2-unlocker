@@ -27,7 +27,12 @@ ath_ddr_find_size(void)
 		}
 	}
 
+#if !defined(CONFIG_SKIP_LOWLEVEL_INIT)
 	return ((i < max_i) ? (i * ATH_DDR_SIZE_INCR) : ATH_MAX_DDR_SIZE);
+#else
+	return ((i < max_i) ?
+		(i * ATH_DDR_SIZE_INCR) : ATH_MAX_DDR_SIZE) - 1024 * 1024;
+#endif /* !defined(CONFIG_SKIP_LOWLEVEL_INIT) */
 }
 
 inline int

@@ -307,9 +307,11 @@ reset:
 	mtc0	zero, CP0_COUNT
 	mtc0	zero, CP0_COMPARE
 
+#if !defined(CONFIG_SKIP_LOWLEVEL_INIT)
 	/* CONFIG0 register */
 	li	t0, CONF_CM_UNCACHED
 	mtc0	t0, CP0_CONFIG
+#endif /* !defined(CONFIG_SKIP_LOWLEVEL_INIT) */
 #endif /* !defined(CONFIG_ATH_NAND_BR) */
 #endif /* #ifndef COMPRESSED_UBOOT */
 
@@ -384,6 +386,7 @@ normal_path:
 
 	/* Initialize any external memory.
 	 */
+#if !defined(CONFIG_SKIP_LOWLEVEL_INIT)
 #if defined(CONFIG_AR7100) || defined(CONFIG_AR7240) || defined(CONFIG_ATHEROS)
 	la      t9, lowlevel_init
 	jalr    t9
@@ -401,9 +404,11 @@ normal_path:
 	j	t0
 	nop
 #endif
+#endif /* !defined(CONFIG_SKIP_LOWLEVEL_INIT) */
 
 rel_start:
 
+#if !defined(CONFIG_SKIP_LOWLEVEL_INIT)
 #if defined(CONFIG_AR7100) || defined(CONFIG_AR7240) || defined(CONFIG_ATHEROS)
 	/* REMAP_DISABLE */
 	li	a0,	KSEG1ADDR(ATH_SPI_CLOCK)
@@ -470,6 +475,7 @@ rel_start:
 	nop
 #endif
 #endif /* !CFG_INIT_STACK_IN_SRAM */
+#endif /* !defined(CONFIG_SKIP_LOWLEVEL_INIT) */
 #endif /* #ifndef COMPRESSED_UBOOT */
 
 #if defined(CONFIG_WASP_SUPPORT) || defined(CFG_INIT_STACK_IN_SRAM)

@@ -14,14 +14,12 @@ else #}{
 TEXT_BASE = 0x9f000000
 endif #}
 endif #}
-# TEXT_BASE = 0xbf000000
 
-# SDRAM version
-# TEXT_BASE = 0x80000000
-
-# RAM version
-# TEXT_BASE = 0x83fc0000
-# TEXT_BASE = 0x80100000
+ifdef CONFIG_SKIP_LOWLEVEL_INIT
+	TEXT_BASE = 0x80100000
+else
+	TEXT_BASE = 0x9F000000
+endif
 
 export BOARD_EXTRA_OBJS_tmp =
 

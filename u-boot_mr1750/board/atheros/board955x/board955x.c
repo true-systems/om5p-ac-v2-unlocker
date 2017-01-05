@@ -113,6 +113,7 @@ ath_mem_config(void)
 	unsigned int type, reg32, *tap;
 	extern uint32_t *ath_ddr_tap_cal(void);
 
+#if !defined(CONFIG_SKIP_LOWLEVEL_INIT)
 #if !defined(CONFIG_ATH_EMULATION)
 
 #if !defined(CONFIG_ATH_NAND_BR)
@@ -139,6 +140,7 @@ ath_mem_config(void)
 
 	ath_gpio_config();
 #endif /* !defined(CONFIG_ATH_EMULATION) */
+#endif /* !defined(CONFIG_SKIP_LOWLEVEL_INIT) */
 
 	return ath_ddr_find_size();
 }
