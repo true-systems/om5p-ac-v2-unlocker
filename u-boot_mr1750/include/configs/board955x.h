@@ -352,7 +352,9 @@
 #define CFG_FAULT_ECHO_LINK_DOWN	1
 
 #define CFG_PHY_ADDR			0
-#define CFG_ATH_GMAC_NMACS		1
+#if !defined(CFG_ATH_GMAC_NMACS)
+	#define CFG_ATH_GMAC_NMACS	1
+#endif
 #define CFG_GMII			0
 #define CFG_MII0_RMII			1
 #define CFG_AG7100_GE0_RMII		1
