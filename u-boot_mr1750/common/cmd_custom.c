@@ -44,7 +44,7 @@ static int tftp_get (ulong loadaddr, char *filename)
 
 	load_addr = loadaddr;
 	copy_filename (BootFile, filename, sizeof(BootFile));
-	if ((rcode = NetLoop (TFTP)) > 0) {
+	if ((rcode = NetLoop (TFTPGET)) > 0) {
 		flush_cache (load_addr, rcode);
 	}
 

@@ -355,7 +355,7 @@ BootpHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len)
 		}
 	}
 
-	TftpStart();
+	TftpStart(TFTPGET);
 }
 #endif	/* !CFG_CMD_DHCP */
 
@@ -955,7 +955,7 @@ DhcpHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len)
 #endif
 				}
 			}
-			TftpStart();
+			TftpStart(TFTPGET);
 			return;
 		}
 		break;

@@ -341,9 +341,9 @@ extern int		NetRestartWrap;		/* Tried all network devices	*/
 #endif
 
 #if defined(CFG_ATHRS26_PHY) && defined(CFG_ATHRHDR_EN)
-typedef enum { BOOTP, RARP, ARP, TFTP, DHCP, PING, DNS, NFS, CDP, NETCONS, SNTP, ATHRHDR } proto_t;
+typedef enum { BOOTP, RARP, ARP, TFTPGET, TFTPPUT, DHCP, PING, DNS, NFS, CDP, NETCONS, SNTP, ATHRHDR } proto_t;
 #else
-typedef enum { BOOTP, RARP, ARP, TFTP, DHCP, PING, DNS, NFS, CDP, NETCONS, SNTP } proto_t;
+typedef enum { BOOTP, RARP, ARP, TFTPGET, TFTPPUT, DHCP, PING, DNS, NFS, CDP, NETCONS, SNTP } proto_t;
 #endif
 
 /* from net/net.c */

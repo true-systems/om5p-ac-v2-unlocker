@@ -208,6 +208,8 @@ int	autoscript (ulong addr);
 void	print_image_hdr (image_header_t *hdr);
 
 extern ulong load_addr;		/* Default Load Address */
+extern ulong save_addr;		/* Default Save Address */
+extern ulong save_size;		/* Default Save Size */
 
 /* common/cmd_nvedit.c */
 int	env_init     (void);

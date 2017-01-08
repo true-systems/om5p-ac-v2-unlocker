@@ -66,7 +66,7 @@ RarpHandler(uchar * dummi0, unsigned dummi1, unsigned dummi2, unsigned dummi3)
 #endif
 		}
 	}
-	TftpStart ();
+	TftpStart (TFTPGET);
 }
 
 

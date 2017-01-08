@@ -366,7 +366,8 @@ restart:
 	case SNTP:
 #endif
 	case NETCONS:
-	case TFTP:
+	case TFTPGET:
+	case TFTPPUT:
 		NetCopyIP(&NetOurIP, &bd->bi_ip_addr);
 		NetOurGatewayIP = getenv_IPaddr ("gatewayip");
 		NetOurSubnetMask= getenv_IPaddr ("netmask");
@@ -378,7 +379,8 @@ restart:
 		case NFS:
 #endif
 		case NETCONS:
-		case TFTP:
+		case TFTPGET:
+		case TFTPPUT:
 			NetServerIP = getenv_IPaddr ("serverip");
 			break;
 #if (CONFIG_COMMANDS & CFG_CMD_PING)
@@ -439,10 +441,13 @@ restart:
 #ifdef CONFIG_NET_MULTI
 		NetDevExists = 1;
 #endif
+		NetBootFileXferSize = 0;
+
 		switch (protocol) {
-		case TFTP:
+		case TFTPGET:
+		case TFTPPUT:
 			/* always use ARP to get server ethernet address */
-			TftpStart();
+			TftpStart(protocol);
 			break;
 
 #if (CONFIG_COMMANDS & CFG_CMD_DHCP)
@@ -495,7 +500,6 @@ restart:
 			break;
 		}
 
-		NetBootFileXferSize = 0;
 		break;
 	}
 
@@ -1587,7 +1591,8 @@ static int net_check_prereq (proto_t protocol)
 	case NFS:
 #endif
 	case NETCONS:
-	case TFTP:
+	case TFTPGET:
+	case TFTPPUT:
 		if (NetServerIP == 0) {
 			puts ("*** ERROR: `serverip' not set\n");
 			return (1);
