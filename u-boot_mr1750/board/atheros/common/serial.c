@@ -2,6 +2,7 @@
 #include <asm/types.h>
 #include <config.h>
 #include <atheros.h>
+#include <watchdog.h>
 
 int serial_init(void)
 {
@@ -64,6 +65,8 @@ int serial_init(void)
 
 int serial_tstc (void)
 {
+	WATCHDOG_RESET();
+
 	return(ath_uart_rd(OFS_LINE_STATUS) & 0x1);
 }
 
@@ -79,7 +82,8 @@ void serial_putc(u8 byte)
 {
 	if (byte == '\n') serial_putc ('\r');
 
-	while (((ath_uart_rd(OFS_LINE_STATUS)) & 0x20) == 0x0);
+	while (((ath_uart_rd(OFS_LINE_STATUS)) & 0x20) == 0x0)
+		WATCHDOG_RESET();
 
 	ath_uart_wr(OFS_SEND_BUFFER, byte);
 }

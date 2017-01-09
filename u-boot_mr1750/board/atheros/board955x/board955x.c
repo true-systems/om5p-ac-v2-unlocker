@@ -9,6 +9,8 @@
 extern int ath_ddr_initial_config(uint32_t refresh);
 extern int ath_ddr_find_size(void);
 
+static ulong last_wdt_ticks = 0;
+
 #ifdef COMPRESSED_UBOOT
 #	define prmsg(...)
 #	define args		char *s
@@ -181,6 +183,14 @@ void hw_watchdog_reset (void)
 #else
 	#define _HW_WDT_MASK	0x10000
 #endif /* defined(CONFIG_OM5PACV2_UNLOCKER) */
+	ulong ticks = get_timer(last_wdt_ticks);
+
+	/* Don't feed wdt often than every 100 ms */
+	if (ticks < (CFG_HZ / 10))
+		return;
+
+	last_wdt_ticks = get_timer(0);
+
 	if ((ath_reg_rd (GPIO_OUT_ADDRESS) & _HW_WDT_MASK) == 0) {
 		ath_reg_rmw_set (GPIO_OUT_ADDRESS, _HW_WDT_MASK);
 	} else {
