@@ -464,3 +464,209 @@ U_BOOT_CMD(
 	"flashit - batch write data into flash via network using TFTP protocol\n",
 	"[loadAddress] [cfgfilename]\n"
 );
+
+#if defined(CONFIG_OM5PACV2_UNLOCKER)
+
+	/*#define UNLOCK_DBG*/
+	#define UNLOCK_STR	"[[[ UNLOCKER ]]] "
+	#define mdelay(_x)	udelay((_x)*1000)
+	#define MACADR_OFS	(CFG_FLASH_BASE + 0xff0000)	/* MAC from label */
+
+static void inline redled(int on)
+{
+	if (on)
+		ath_reg_wr(0x18040010, 0x800000);
+	else
+		ath_reg_wr(0x1804000c, 0x800000);
+}
+
+static void inline greenled(int on)
+{
+	if (on)
+		ath_reg_wr(0x18040010, 0x2000);
+	else
+		ath_reg_wr(0x1804000c, 0x2000);
+}
+
+static int unlock_loop(int unlocked)
+{
+	for (;;) {
+		WATCHDOG_RESET();
+
+		if (unlocked) {
+			greenled(1);
+			mdelay(500);
+			greenled(0);
+			mdelay(500);
+		} else {
+			redled(1);
+			mdelay(500);
+			redled(0);
+			mdelay(500);
+		}
+
+		if (ctrlc())
+			break;
+	}
+
+	return !unlocked;
+}
+
+int do_unlock(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	char fname[32];
+	char cmd_buf[128];
+	unsigned char mac[6];
+
+	u32 backup_ofs = 0x80100000;
+	u32 backup_len = CFG_FLASH_SECTOR_SIZE;
+
+	u32 key_len = 0x8000;
+	u32 key_ofs = CFG_FLASH_BASE + 0xff0000 + 0x8000;
+
+	u32 key_sect_cnt, key_sect_ofs, key_in_sect_ofs;
+
+	/* RSA key offset (absolute) and size */
+	if (argc > 1)
+		key_ofs = simple_strtoul(argv[1], NULL, 16);
+
+	if (argc > 2)
+		key_len = simple_strtoul(argv[2], NULL, 16);
+
+	if (key_ofs < CFG_FLASH_BASE
+	    || (key_ofs + key_len) > (CFG_FLASH_BASE + CFG_FLASH_SIZE)) {
+		printf(UNLOCK_STR "RSA key block outside FLASH boundaries\n");
+		return unlock_loop(0);
+	}
+
+	/*
+	 * Calculate some values needed later:
+	 * - absolute FLASH offset of first sector with key
+	 * - relative key offset inside first sector with key
+	 * - number of sectors key occupies
+	 * - size of backup
+	 * - filename of backup file
+	 */
+	key_sect_ofs = (key_ofs - CFG_FLASH_BASE) / CFG_FLASH_SECTOR_SIZE;
+	key_sect_ofs *= CFG_FLASH_SECTOR_SIZE;
+	key_sect_ofs += CFG_FLASH_BASE;
+
+	key_in_sect_ofs = key_ofs - key_sect_ofs;
+
+	/* Round up */
+	key_sect_cnt = (key_in_sect_ofs + key_len +
+		        (CFG_FLASH_SECTOR_SIZE / 2)) / CFG_FLASH_SECTOR_SIZE;
+
+	backup_len = key_sect_cnt * CFG_FLASH_SECTOR_SIZE;
+
+	memcpy(mac, (void *)MACADR_OFS, 6);
+
+	sprintf(fname, "om5p-ac-v2__%02x%02x%02x%02x%02x%02x_backup.bin",
+		mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+
+#if defined(UNLOCK_DBG)
+	printf(UNLOCK_STR "key_ofs         = 0x%08x\n", key_ofs);
+	printf(UNLOCK_STR "key_len         = 0x%08x\n", key_len);
+	printf(UNLOCK_STR "key_sect_ofs    = 0x%08x\n", key_sect_ofs);
+	printf(UNLOCK_STR "key_in_sect_ofs = 0x%08x\n", key_in_sect_ofs);
+	printf(UNLOCK_STR "key_sect_cnt    = %d\n", key_sect_cnt);
+	printf(UNLOCK_STR "backup_len      = 0x%08x\n", backup_len);
+	printf(UNLOCK_STR "fname           = %s\n", fname);
+#endif
+
+	/* 1. Check if we have RSA key installed at given offset */
+	if (validate_usign_block_keys((void *)key_ofs, (void *)key_len) == 0
+	    || get_usign_block_len((void *)key_ofs) == 0) {
+		printf(UNLOCK_STR "RSA key not found at 0x%08x\n", key_ofs);
+		return unlock_loop(1);
+	}
+
+	printf(UNLOCK_STR "RSA key found at 0x%08x\n", key_ofs);
+
+	/* 2. Backup RSA key sector/s in RAM */
+	sprintf(cmd_buf, "cp.b 0x%08x 0x%08x 0x%08x",
+		key_sect_ofs, backup_ofs, backup_len);
+
+#if defined(UNLOCK_DBG)
+	printf(UNLOCK_STR "cmd_buf = %s\n", cmd_buf);
+#endif
+
+	if (!run_command(cmd_buf, 0)) {
+		printf(UNLOCK_STR "could not perform data backup in RAM\n");
+		return unlock_loop(0);
+	}
+
+	printf(UNLOCK_STR "backup in RAM done (%d bytes saved at 0x%08x)\n",
+	       backup_len, backup_ofs);
+
+	/* 3. Send backup data to tftp server */
+	sprintf(cmd_buf, "tftpput 0x%08x 0x%08x %s",
+		backup_ofs, backup_len, fname);
+
+#if defined(UNLOCK_DBG)
+	printf(UNLOCK_STR "cmd_buf = %s\n", cmd_buf);
+#endif
+
+	if (!run_command(cmd_buf, 0)) {
+		printf(UNLOCK_STR "could not send backup to TFTP server\n");
+		return unlock_loop(0);
+	}
+
+	printf(UNLOCK_STR "backup file '%s' successfully sent to TFTP server\n",
+	       fname);
+
+	/* 4. Erase (fill with 0xff) RSA key in RAM backup */
+	sprintf(cmd_buf, "mw.b 0x%08x 0xff 0x%08x",
+		backup_ofs + key_in_sect_ofs, key_len);
+
+#if defined(UNLOCK_DBG)
+	printf(UNLOCK_STR "cmd_buf = %s\n", cmd_buf);
+#endif
+
+	if (!run_command(cmd_buf, 0)) {
+		printf(UNLOCK_STR "could not clear RSA key in RAM\n");
+		return unlock_loop(0);
+	}
+
+	printf(UNLOCK_STR "RSA key successfully cleared in RAM\n");
+
+	/* 5. Erase sector/s */
+	sprintf(cmd_buf, "erase 0x%08x +0x%08x", key_sect_ofs, backup_len);
+
+#if defined(UNLOCK_DBG)
+	printf(UNLOCK_STR "cmd_buf = %s\n", cmd_buf);
+#endif
+
+	if (!run_command(cmd_buf, 0)) {
+		printf(UNLOCK_STR "could not erase FLASH\n");
+		return unlock_loop(0);
+	}
+
+	printf(UNLOCK_STR "%d FLASH sector%s successfully erased\n",
+	       key_sect_cnt, key_sect_cnt > 1 ? "s" : "");
+
+	/* 6. Copy backup data back to FLASH */
+	sprintf(cmd_buf, "cp.b 0x%08x 0x%08x 0x%08x",
+		backup_ofs, key_sect_ofs, backup_len);
+
+#if defined(UNLOCK_DBG)
+	printf(UNLOCK_STR "cmd_buf = %s\n", cmd_buf);
+#endif
+
+	if (!run_command(cmd_buf, 0)) {
+		printf(UNLOCK_STR "could not copy backup data back to FLASH\n");
+		return unlock_loop(0);
+	}
+
+	printf(UNLOCK_STR "backup data successfully copied back to FLASH\n");
+	printf(UNLOCK_STR "DONE! Press CTRL+C if you want use U-Boot CLI\n");
+
+	return unlock_loop(1);
+}
+
+U_BOOT_CMD(
+	unlock,	3,	0,	do_unlock,
+	"unlock  - remove RSA public key from ART partition\n",
+	"[key offset] [key size]"
+);
+#endif /* defined(CONFIG_OM5PACV2_UNLOCKER) */

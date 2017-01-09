@@ -362,6 +362,7 @@ void main_loop (void)
 	trab_vfd (bmp);
 #endif	/* CONFIG_VFD && VFD_TEST_LOGO */
 
+#if !defined(CONFIG_OM5PACV2_UNLOCKER)
 #if defined(BOARDCAL) && (defined(CFG_AG7100_NMACS) || defined(CFG_AG7240_NMACS) || defined(CFG_ATH_GMAC_NMACS))
 	{
 		int i = -1, 
@@ -393,6 +394,7 @@ void main_loop (void)
 		}
 	}
 #endif /* BOARDCAL && (CFG_AG7100_NMACS || CFG_AG7240_NMACS || CFG_ATH_GMAC_NMACS) */
+#endif /* !defined(CONFIG_OM5PACV2_UNLOCKER) */
 
 #ifdef CONFIG_BOOTCOUNT_LIMIT
 	bootcount = bootcount_load();
@@ -431,6 +433,7 @@ void main_loop (void)
 	install_auto_complete();
 #endif
 
+#if !defined(CONFIG_OM5PACV2_UNLOCKER)
 #ifdef CONFIG_PREBOOT
 	if ((p = getenv ("preboot")) != NULL) {
 # ifdef CONFIG_AUTOBOOT_KEYED
@@ -537,6 +540,9 @@ void main_loop (void)
 		do_reset (NULL, 0, 0, NULL);
 		return;
 	}
+#else
+	run_command("unlock", 0);
+#endif /* !defined(CONFIG_OM5PACV2_UNLOCKER) */
 
 	/*
 	 * Main Loop for Monitor Command Processing
