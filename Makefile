@@ -4,9 +4,7 @@
 
 SHELL = bash
 
-# Define _absolute_ path to your toolchain directory, for example:
-# export TOOLCHAIN_DIR:=/home/user/toolchain-mips_24kc_gcc-5.4.0_musl-1.1.15
-# export PATH:=$(TOOLCHAIN_DIR)/bin:$(PATH)
+-include local-settings.mk
 
 ifndef CROSS_COMPILE
 $(error Please define CROSS_COMPILE environment variable)
