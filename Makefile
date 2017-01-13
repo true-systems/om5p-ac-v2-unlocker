@@ -9,10 +9,10 @@ SHELL = bash
 # export PATH:=$(TOOLCHAIN_DIR)/bin:$(PATH)
 
 ifndef CROSS_COMPILE
-  CROSS_COMPILE = mips-openwrt-linux-musl-
+$(error Please define CROSS_COMPILE environment variable)
 endif
-export CROSS_COMPILE
 
+export CROSS_COMPILE
 export BUILD_TOPDIR = $(PWD)
 export STAGING_DIR  = $(BUILD_TOPDIR)/tmp
 export OUTPUT_DIR   = $(BUILD_TOPDIR)/output
