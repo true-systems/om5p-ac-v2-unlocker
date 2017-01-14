@@ -67,6 +67,10 @@ endef
 # TARGETS
 # =======
 
+om5p-ac-v2-unlocker: UBOOT_TARGET_CONFIG=board955x_config
+om5p-ac-v2-unlocker: UBOOT_TARGET_PARAMS=$(OM5PACV2_RAM_UBOOT_PARAMS)
+om5p-ac-v2-unlocker: $(OUTPUT_DIR)/fwupgrade.cfg $(OUTPUT_DIR)/fwupgrade.cfg.sig
+
 $(OUTPUT_DIR)/fwupgrade.cfg.sig:
 	@$(call gen_zero_file,fwupgrade.cfg.sig,132413292)
 	@$(call echo_msg,Preparing exploit instructions inside '$(notdir $@)'...)
