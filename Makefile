@@ -54,3 +54,5 @@ clean:
 	@$(call MESSAGE,Cleaning...)
 	$(SILENT) cd $(SOURCE_DIR) && $(SUBMAKE) distclean
 	$(SILENT) rm -f $(OUTPUT_DIR)/fwupgrade.cfg*
+
+include circle.mk
