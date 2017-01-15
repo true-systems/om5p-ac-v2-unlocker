@@ -115,7 +115,7 @@ ROUTER_MODEL ?= unknown
 MTD_BACKUP_DIRNAME ?= mtd_backup-$(ROUTER_MODEL)-$(shell date +%Y%m%d%H%M)
 MTD_BACKUP_PATH ?= $(TOPDIR)/$(MTD_BACKUP_DIRNAME)
 
-.PHONY: mtd_backupmake setup_ssh_publickey_auth
+.PHONY: mtd_backupmake setup_ssh_publickey_auth dump_rsa_pub_key
 mtd_backup:
 	$(SILENT) mkdir -p $(MTD_BACKUP_PATH)
 	$(SILENT) echo -n > $(MTD_BACKUP_PATH)/md5sums
@@ -130,3 +130,14 @@ mtd_backup:
 setup_ssh_publickey_auth:
 	ssh root@$(ROUTER_IP) "tee -a /etc/dropbear/authorized_keys" < $(HOME)/.ssh/id_rsa.pub
 	ssh root@$(ROUTER_IP) cat /etc/banner
+
+# 0x8000=offset, 0x20=header, 0x400=keysize
+dump_rsa_pub_key:
+ifeq ($(ART_PARTITION),)
+	$(call ERROR_MESSAGE,Please specify ART_PARTITION parameter)
+endif
+	[ -f "$(ART_PARTITION)" ] && \
+		dd if="$(ART_PARTITION)" bs=$$((0x8000+0x20)) count=1 skip=1 | \
+		dd of="$(ART_PARTITION)-rsa.pub.only.key" bs=$$((0x400)) count=1
+		dd if="$(ART_PARTITION)" bs=$$((0x8000)) count=1 skip=1 | \
+		dd of="$(ART_PARTITION)-rsa.pub.complete.key" bs=$$((0x420)) count=1
