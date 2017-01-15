@@ -149,3 +149,14 @@ clear_out_rsa_key:
 		dd of=/dev/mtd7 bs=$$((0x20)) seek=$$((0x8000/0x20)) count=1 conv=notrunc && \
 		sync \
 		"
+
+unlock:
+	make clear_out_rsa_key
+	ssh root@$(ROUTER_IP) rm /usr/bin/ng_login
+
+restore_art:
+ifeq ($(ART_BACKUP),)
+	$(call ERROR_MESSAGE,Please specify ART_BACKUP parameter)
+endif
+	[ -f "$(ART_BACKUP)" ] && \
+	ssh root@$(ROUTER_IP) mtd write - ART < $(ART_BACKUP)
