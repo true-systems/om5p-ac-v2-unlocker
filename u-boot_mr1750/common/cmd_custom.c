@@ -591,7 +591,7 @@ int do_unlock(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	printf(UNLOCK_STR "cmd_buf = %s\n", cmd_buf);
 #endif
 
-	if (!run_command(cmd_buf, 0)) {
+	if (run_command(cmd_buf, 0) < 0) {
 		printf(UNLOCK_STR "could not perform data backup in RAM\n");
 		return unlock_loop(0);
 	}
@@ -607,7 +607,7 @@ int do_unlock(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	printf(UNLOCK_STR "cmd_buf = %s\n", cmd_buf);
 #endif
 
-	if (!run_command(cmd_buf, 0)) {
+	if (run_command(cmd_buf, 0) < 0) {
 		printf(UNLOCK_STR "could not send backup to TFTP server\n");
 		return unlock_loop(0);
 	}
@@ -623,7 +623,7 @@ int do_unlock(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	printf(UNLOCK_STR "cmd_buf = %s\n", cmd_buf);
 #endif
 
-	if (!run_command(cmd_buf, 0)) {
+	if (run_command(cmd_buf, 0) < 0) {
 		printf(UNLOCK_STR "could not clear RSA key in RAM\n");
 		return unlock_loop(0);
 	}
@@ -637,7 +637,7 @@ int do_unlock(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	printf(UNLOCK_STR "cmd_buf = %s\n", cmd_buf);
 #endif
 
-	if (!run_command(cmd_buf, 0)) {
+	if (run_command(cmd_buf, 0) < 0) {
 		printf(UNLOCK_STR "could not erase FLASH\n");
 		return unlock_loop(0);
 	}
@@ -653,7 +653,7 @@ int do_unlock(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	printf(UNLOCK_STR "cmd_buf = %s\n", cmd_buf);
 #endif
 
-	if (!run_command(cmd_buf, 0)) {
+	if (run_command(cmd_buf, 0) < 0) {
 		printf(UNLOCK_STR "could not copy backup data back to FLASH\n");
 		return unlock_loop(0);
 	}
