@@ -109,3 +109,20 @@ define swap_byte
   printf "$(shell printf '\\x%02X' $(3))" |\
   $(SILENT) dd of=$(1) bs=1 count=1 seek=$(2) conv=notrunc
 endef
+
+ROUTER_IP ?= 192.168.1.100
+ROUTER_MODEL ?= unknown
+MTD_BACKUP_DIRNAME ?= mtd_backup-$(ROUTER_MODEL)-$(shell date +%Y%m%d%H%M)
+MTD_BACKUP_PATH ?= $(TOPDIR)/$(MTD_BACKUP_DIRNAME)
+
+.PHONY: mtd_backup
+mtd_backup:
+	$(SILENT) mkdir -p $(MTD_BACKUP_PATH)
+	$(SILENT) echo -n > $(MTD_BACKUP_PATH)/md5sums
+	$(SILENT) ssh root@$(ROUTER_IP) cat /proc/mtd > $(MTD_BACKUP_PATH)/mtd_partitions.txt
+	for part in mtd0 mtd1 mtd2 mtd3 mtd4 mtd5 mtd6 mtd7; do \
+		echo "Creating /dev/$$part backup to $(MTD_BACKUP_PATH)/$$part"; \
+		ssh root@$(ROUTER_IP) dd if=/dev/$$part > $(MTD_BACKUP_PATH)/$$part && \
+		ssh root@$(ROUTER_IP) md5sum /dev/$$part | tr '/' ' '| cut -d ' ' -f1,5 >> $(MTD_BACKUP_PATH)/md5sums; \
+	done
+	cd $(MTD_BACKUP_PATH) && md5sum -c md5sums

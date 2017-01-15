@@ -3,7 +3,6 @@
 #
 
 -include local-settings.mk
-include utils.mk
 
 ifndef CROSS_COMPILE
 $(error Please define CROSS_COMPILE environment variable)
@@ -25,6 +24,8 @@ OM5PACV2_RAM_UBOOT_PARAMS = BOARD_NAME=OM5P-ACv2 CFG_BOARD_TYPE=ap135 \
 om5p-ac-v2-unlocker: UBOOT_TARGET_CONFIG=board955x_config
 om5p-ac-v2-unlocker: UBOOT_TARGET_PARAMS=$(OM5PACV2_RAM_UBOOT_PARAMS)
 om5p-ac-v2-unlocker: $(OUTPUT_DIR)/fwupgrade.cfg $(OUTPUT_DIR)/fwupgrade.cfg.sig
+
+include utils.mk
 
 $(OUTPUT_DIR)/fwupgrade.cfg.sig:
 	@$(call gen_zero_file,fwupgrade.cfg.sig,132413292)
