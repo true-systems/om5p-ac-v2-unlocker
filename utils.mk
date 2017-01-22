@@ -115,16 +115,18 @@ ROUTER_MODEL ?= unknown
 MTD_BACKUP_DIRNAME ?= mtd_backup-$(ROUTER_MODEL)-$(shell date +%Y%m%d%H%M)
 MTD_BACKUP_PATH ?= $(TOPDIR)/$(MTD_BACKUP_DIRNAME)
 FIND_ART_MTD ?= grep '"ART"' /proc/mtd | cut -c1-4
+MTD_PART_LIST ?= $(MTD_BACKUP_PATH)/mtd_partitions.txt
 
 .PHONY: mtd_backup setup_ssh_publickey_auth dump_rsa_pub_key clear_out_rsa_key
 mtd_backup:
 	$(SILENT) mkdir -p $(MTD_BACKUP_PATH)
 	$(SILENT) echo -n > $(MTD_BACKUP_PATH)/md5sums
-	$(SILENT) ssh root@$(ROUTER_IP) cat /proc/mtd > $(MTD_BACKUP_PATH)/mtd_partitions.txt
-	for part in mtd0 mtd1 mtd2 mtd3 mtd4 mtd5 mtd6 mtd7; do \
+	$(SILENT) ssh root@$(ROUTER_IP) cat /proc/mtd > $(MTD_PART_LIST)
+	set -e; \
+	for part in $$(sed 1d $(MTD_PART_LIST) | cut -c1-4); do \
 		echo "Creating /dev/$$part backup to $(MTD_BACKUP_PATH)/$$part"; \
-		ssh root@$(ROUTER_IP) dd if=/dev/$$part > $(MTD_BACKUP_PATH)/$$part && \
-		ssh root@$(ROUTER_IP) md5sum /dev/$$part | tr '/' ' '| cut -d ' ' -f1,5 >> $(MTD_BACKUP_PATH)/md5sums; \
+		ssh root@$(ROUTER_IP) dd if=/dev/$$part > $(MTD_BACKUP_PATH)/$$part; \
+		ssh root@$(ROUTER_IP) "md5sum /dev/$$part | tr '/' ' '| cut -d ' ' -f1,5" >> $(MTD_BACKUP_PATH)/md5sums; \
 	done
 	cd $(MTD_BACKUP_PATH) && md5sum -c md5sums
 
