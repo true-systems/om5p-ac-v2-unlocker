@@ -115,7 +115,7 @@ ROUTER_MODEL ?= unknown
 MTD_BACKUP_DIRNAME ?= mtd_backup-$(ROUTER_MODEL)-$(shell date +%Y%m%d%H%M)
 MTD_BACKUP_PATH ?= $(TOPDIR)/$(MTD_BACKUP_DIRNAME)
 
-.PHONY: mtd_backupmake setup_ssh_publickey_auth dump_rsa_pub_key clear_out_rsa_key
+.PHONY: mtd_backup setup_ssh_publickey_auth dump_rsa_pub_key clear_out_rsa_key
 mtd_backup:
 	$(SILENT) mkdir -p $(MTD_BACKUP_PATH)
 	$(SILENT) echo -n > $(MTD_BACKUP_PATH)/md5sums
