@@ -114,6 +114,7 @@ ROUTER_IP ?= 192.168.1.100
 ROUTER_MODEL ?= unknown
 MTD_BACKUP_DIRNAME ?= mtd_backup-$(ROUTER_MODEL)-$(shell date +%Y%m%d%H%M)
 MTD_BACKUP_PATH ?= $(TOPDIR)/$(MTD_BACKUP_DIRNAME)
+FIND_ART_MTD ?= grep '"ART"' /proc/mtd | cut -c1-4
 
 .PHONY: mtd_backup setup_ssh_publickey_auth dump_rsa_pub_key clear_out_rsa_key
 mtd_backup:
@@ -144,9 +145,11 @@ endif
 
 # we actually clear out only the header, but it should be enough to cripple the check
 clear_out_rsa_key:
+	ssh root@$(ROUTER_IP) ls -al /dev/$(FIND_ART_MTD)
 	ssh root@$(ROUTER_IP) " \
 		dd if=/dev/zero bs=$$((0x20)) count=1 | \
-		dd of=/dev/mtd7 bs=$$((0x20)) seek=$$((0x8000/0x20)) count=1 conv=notrunc && \
+		dd of=/dev/$$($(FIND_ART_MTD))) bs=$$((0x20)) \
+			seek=$$((0x8000/0x20)) count=1 conv=notrunc && \
 		sync \
 		"
 
