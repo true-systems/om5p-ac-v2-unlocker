@@ -1,0 +1,8 @@
+dependencies:
+  cache_directories:
+    - toolchain
+
+test:
+  override:
+    - make ci-prepare
+    - make ci-test
