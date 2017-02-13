@@ -1,5 +1,5 @@
-OpenMesh OM5P-AC v2 Unlocker
-============================
+Open Mesh OM5P-AC v2 Unlocker
+=============================
 
 Here’s our current build status: [![CircleCI](https://circleci.com/gh/true-systems/om5p-ac-v2-unlocker/tree/master.svg?style=svg&circle-token=158c0fd70915de6831e446ab0eec1c685f3bfc55)](https://circleci.com/gh/true-systems/om5p-ac-v2-unlocker/tree/master)
 
