@@ -3,8 +3,12 @@ OpenMesh OM5P-AC v2 Unlocker
 
 Here’s our current build status: [![CircleCI](https://circleci.com/gh/true-systems/om5p-ac-v2-unlocker/tree/master.svg?style=svg&circle-token=158c0fd70915de6831e446ab0eec1c685f3bfc55)](https://circleci.com/gh/true-systems/om5p-ac-v2-unlocker/tree/master)
 
-How to use it?
---------------
+You can read more about the background of this project in our [Free Your Router, Again!](http://blog.true.cz/2017/02/free-your-router-again/) blog post.
+
+We've spent some time to document everything properly and in detail on the [project's Wiki](https://github.com/true-systems/om5p-ac-v2-unlocker/wiki).
+
+How to use it quickly?
+----------------------
 
 1. Setup a static IP **192.168.100.8/24** on your PC network card.
 2. Configure and start any **TFTP** (not FTP!) server with **option negotiation mechanism** enabled.
